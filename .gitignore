@@ -16,3 +16,6 @@ instance/
 
 # env
 env/
+
+# pem files
+*.pem

@@ -1,0 +1,1 @@
+export PATH=~/Developer/CE186/switche/mongodb/bin/:$PATH
