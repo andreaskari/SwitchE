@@ -15,6 +15,10 @@ Log into shell
 $ ssh -i ~/Developer/CE186/switche/SwitchE.pem ubuntu@ec2-52-15-86-194.us-east-2.compute.amazonaws.com
 ```
 
+Setup mongo db:
+
+https://www.howtoforge.com/tutorial/install-mongodb-on-ubuntu-16.04/
+
 Install all packages locally or create a virtualenv for development via pip.
 
 ```shell

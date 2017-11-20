@@ -14,6 +14,9 @@ pip-delete-this-directory.txt
 instance/
 .webassets-cache
 
+# Mongo
+mongodb
+
 # env
 env/
 
