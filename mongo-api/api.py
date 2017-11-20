@@ -29,6 +29,14 @@ MANUAL_SETTINGS_MODE = 'manual'
 TIMER_SETTINGS_MODE = 'timer'
 GEOLOCATION_SETTINGS_MODE = 'geolocation'
 
+COST_PER_HOUR = {
+	0:  0.202,
+	8:  0.230,
+	12: 0.253,
+	14: 0.853,
+	18: 0.230,
+	21: 0.202,
+}
 
 # -- Classes & Methods -- #
 
@@ -56,6 +64,12 @@ def get_last_stream_item(collection_name):
 	result = collection.find().sort('timestamp', pymongo.DESCENDING).limit(1)
 	return result[0]
 
+def get_last_number_stream_items(collection_name, limit):
+	db = get_database()
+	collection = get_collection(db, collection_name)
+	result = collection.find().sort('timestamp', pymongo.DESCENDING).limit(limit)
+	return result
+
 # def update_settings_collection(settings):
 # 	db = get_database()
 # 	collection = get_collection(db, SETTINGS_COLLECTION)
@@ -78,15 +92,52 @@ app = Flask(__name__)
 def root():
   return "This is our sexy API sitting on MongoDB"
 
-
 @app.route('/getLastCurrent', methods=['GET']) 
 def getLastCurrent(): 
 	result = get_last_stream_item(CURRENT_COLLECTION)
 	desired_data = {
 		'timestamp': result['timestamp'],
-		'value': result['value']
+		'value': float(result['value'])
 	}
 	return jsonify(desired_data)
+
+
+@app.route('/getLastPower', methods=['GET']) 
+def getLastPower(): 
+	result = get_last_stream_item(CURRENT_COLLECTION)
+	desired_data = {
+		'timestamp': result['timestamp'],
+		'value': 120.0 * float(result['value'])
+	}
+	return jsonify(desired_data)
+
+@app.route('/getPowerHistory', methods=['GET']) 
+def getPowerHistory(): 
+	result = get_last_number_stream_items(CURRENT_COLLECTION, 10)
+	desired_data_list = []
+	for r in result:
+		desired_data_list.append({
+			'timestamp': r['timestamp'],
+			'value': 120.0 * float(r['value'])
+		})
+	return jsonify(desired_data_list)
+
+# @app.route('/getEnergyLastHour', methods=['GET']) 
+# def getEnergyLastHour(): 
+# 	result = get_last_number_stream_items(CURRENT_COLLECTION, 10)
+# 	utc_timestamp_seconds = int(datetime.datetime.now().strftime('%s'))
+# 	energy = 0.0
+# 	for r in result:
+# 		date_obj = datetime.datetime.fromtimestamp(r['timestamp'])
+# 		seconds = (utc_timestamp_seconds - date_obj).total_seconds()
+# 		if seconds < 3600:
+			
+# 		desired_data_list.append({
+
+# 			'timestamp': r['timestamp'],
+# 			'value': 120.0 * float(r['value'])
+# 		})
+# 	return jsonify(desired_data_list)
 
 @app.route('/getLastLocation', methods=['GET']) 
 def getLastLocation(): 
