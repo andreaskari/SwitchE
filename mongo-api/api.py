@@ -90,7 +90,7 @@ def calculate_energy_last_hour():
 def calculate_cost_last_hour(): 
 	result = calculate_energy_last_hour()
 	hour = (result['timestamp'] % 3600) / 60
-	last_slot = COST_PER_HOUR.keys()[0]
+	last_slot = 0
 	for time_slot in COST_PER_HOUR.keys():
 		if hour < time_slot:
 			break
