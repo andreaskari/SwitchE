@@ -70,6 +70,38 @@ def get_last_number_stream_items(collection_name, limit):
 	result = collection.find().sort('timestamp', pymongo.DESCENDING).limit(limit)
 	return result
 
+def calculate_energy_last_hour(): 
+	result = get_last_number_stream_items(CURRENT_COLLECTION, 10)
+	utc_timestamp_seconds = int(datetime.datetime.now().strftime('%s'))
+	energy = 0.0
+	for r in result:
+		date_obj = datetime.datetime.fromtimestamp(r['timestamp'])
+		seconds = (utc_timestamp_seconds - date_obj).total_seconds()
+		if seconds < 3600:
+			power = 120.0 * float(r['value'])
+			# Energy from power: times 1 sec (then convert to kWh)
+			energy += power / 3600.0 
+	desired_data = {
+		'timestamp': utc_timestamp_seconds,
+		'energy': energy
+	}
+	return desired_data
+
+def calculate_cost_last_hour(): 
+	data_list = calculateEnergyLastHour()
+	hour = (r['timestamp'] % 3600) / 60
+	last_slot = COST_PER_HOUR.keys()[0]
+	for time_slot in COST_PER_HOUR.keys():
+		if hour < time_slot:
+			break
+		last_slot = time_slot
+	rate = COST_PER_HOUR[last_slot]
+	desired_data = {
+		'timestamp': r['timestamp'],
+		'cost': rate * r['energy']
+	}
+	return desired_data
+
 # def update_settings_collection(settings):
 # 	db = get_database()
 # 	collection = get_collection(db, SETTINGS_COLLECTION)
@@ -97,17 +129,16 @@ def getLastCurrent():
 	result = get_last_stream_item(CURRENT_COLLECTION)
 	desired_data = {
 		'timestamp': result['timestamp'],
-		'value': float(result['value'])
+		'current': float(result['value'])
 	}
 	return jsonify(desired_data)
-
 
 @app.route('/getLastPower', methods=['GET']) 
 def getLastPower(): 
 	result = get_last_stream_item(CURRENT_COLLECTION)
 	desired_data = {
 		'timestamp': result['timestamp'],
-		'value': 120.0 * float(result['value'])
+		'power': 120.0 * float(result['value'])
 	}
 	return jsonify(desired_data)
 
@@ -118,26 +149,19 @@ def getPowerHistory():
 	for r in result:
 		desired_data_list.append({
 			'timestamp': r['timestamp'],
-			'value': 120.0 * float(r['value'])
+			'power': 120.0 * float(r['value'])
 		})
 	return jsonify(desired_data_list)
 
-# @app.route('/getEnergyLastHour', methods=['GET']) 
-# def getEnergyLastHour(): 
-# 	result = get_last_number_stream_items(CURRENT_COLLECTION, 10)
-# 	utc_timestamp_seconds = int(datetime.datetime.now().strftime('%s'))
-# 	energy = 0.0
-# 	for r in result:
-# 		date_obj = datetime.datetime.fromtimestamp(r['timestamp'])
-# 		seconds = (utc_timestamp_seconds - date_obj).total_seconds()
-# 		if seconds < 3600:
-			
-# 		desired_data_list.append({
+@app.route('/getEnergyLastHour', methods=['GET']) 
+def getEnergyLastHour(): 
+	desired_data = calculate_energy_last_hour()
+	return jsonify(desired_data)
 
-# 			'timestamp': r['timestamp'],
-# 			'value': 120.0 * float(r['value'])
-# 		})
-# 	return jsonify(desired_data_list)
+@app.route('/getCostLastHour', methods=['GET']) 
+def getCostLastHour(): 
+	desired_data = calculate_cost_last_hour()
+	return jsonify(desired_data)
 
 @app.route('/getLastLocation', methods=['GET']) 
 def getLastLocation(): 
