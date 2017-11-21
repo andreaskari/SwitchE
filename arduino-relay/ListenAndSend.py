@@ -11,7 +11,8 @@ HEADER = {}
 # Change the port name to match the port 
 # to which your Arduino is connected. 
 # serial_port_name = '/dev/tty.usbserial-A9007UX1' 
-serial_port_name = '/dev/cu.usbmodem14231' 
+# serial_port_name = '/dev/cu.usbmodem14231' 
+serial_port_name = '/dev/cu.usbmodem1411' 
 ser = serial.Serial(serial_port_name, 9600, timeout=1)
 
 delay = 1 # Delay in seconds
@@ -26,21 +27,23 @@ def setup():
 # Run continuously forever
 def loop(): 
     # Check if something is in serial buffer 
-    if ser.inWaiting() > 0: 
+    current = 0
+    while ser.inWaiting() > 0: 
         # Read green value form serial
-        current = float(ser.readline())
-        print 'Received from serial:', current 
+        value = ser.readline()
+        print 'Received from serial:', value 
+        current = float(value)
 
-        # Post current
-        post_current(current)
+    # Post current
+    post_current(current)
 
-        # Get IO
-        value = get_IO()
-        print 'Received from server:', value 
+    # Get IO
+    value = get_IO()
+    print 'Received from server:', value 
 
-        # Write orange value to serial
-        if value != None:
-            ser.write(value) 
+    # Write orange value to serial
+    if value != None:
+        ser.write(str.encode(str(value))) 
 
     # 5 second delay 
     time.sleep(5) 
