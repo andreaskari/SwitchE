@@ -72,7 +72,7 @@ def get_last_number_stream_items(collection_name, limit):
 
 def calculate_energy_last_hour(): 
 	result = get_last_number_stream_items(CURRENT_COLLECTION, 10)
-	utc_timestamp_seconds = int(datetime.datetime.now().strftime('%s'))
+	utc_timestamp_seconds = datetime.datetime.now()
 	energy = 0.0
 	for r in result:
 		date_obj = datetime.datetime.fromtimestamp(r['timestamp'])
