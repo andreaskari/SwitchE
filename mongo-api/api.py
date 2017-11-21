@@ -88,7 +88,7 @@ def calculate_energy_last_hour():
 	return desired_data
 
 def calculate_cost_last_hour(): 
-	data_list = calculateEnergyLastHour()
+	data_list = calculate_energy_last_hour()
 	hour = (r['timestamp'] % 3600) / 60
 	last_slot = COST_PER_HOUR.keys()[0]
 	for time_slot in COST_PER_HOUR.keys():
