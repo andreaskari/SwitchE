@@ -82,7 +82,7 @@ def calculate_energy_last_hour():
 			# Energy from power: times 1 sec (then convert to kWh)
 			energy += power / 3600.0 
 	desired_data = {
-		'timestamp': utc_timestamp_seconds,
+		'timestamp': int(utc_timestamp_seconds.strftime('%s')),
 		'energy': energy
 	}
 	return desired_data
