@@ -53,7 +53,7 @@ def get_IO():
     response = requests.request('GET', BASE + endpoint, params=query, headers=HEADER, timeout=120)
     resp = json.loads(response.text)
     print(response.text)
-    if resp['points-code'] == 200 and resp['value'] == 'true':
+    if resp['value'] == 'true':
         value = 1
     return value
 
